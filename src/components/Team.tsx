@@ -30,7 +30,7 @@ export default function Team() {
     <section id="team" className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
         <h2 className="text-4xl font-bold text-center mb-16">
-          Les Visages derrière Paiecash
+          Les visages derrière PaiecashPlay
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">

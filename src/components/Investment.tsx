@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const investmentDetails = [
   {
-    title: "Utilisation des Fonds",
+    title: "Utilisation des fonds",
     items: [
       "Technologie (400K€) : R&D, infrastructure cloud, sécurité",
       "Déploiement (250K€) : Formation des équipes, intégration clubs",
@@ -13,7 +13,7 @@ const investmentDetails = [
     ]
   },
   {
-    title: "Termes d'Investissement",
+    title: "Termes d'investissement",
     items: [
       "Valorisation Pre-money : 5M€",
       "Post-money : 5.808M€",
@@ -30,7 +30,7 @@ export default function Investment() {
         <div className="grid md:grid-cols-2 gap-12">
           <div>
             <h2 className="text-4xl font-bold mb-8">
-              Proposition d'Investissement
+              Proposition d'investissement
             </h2>
             
             {investmentDetails.map((section, index) => (
@@ -71,7 +71,7 @@ export default function Investment() {
 
             <div className="bg-gray-50 p-6 rounded-xl">
               <Users className="w-8 h-8 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Notre Vision</h3>
+              <h3 className="text-xl font-semibold mb-2">Notre vision</h3>
               <p className="text-gray-600">Digitaliser et optimiser l'écosystème du sport avec des solutions technologiques avancées</p>
             </div>
           </div>
