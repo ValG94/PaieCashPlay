@@ -6,7 +6,7 @@ export default function Problem() {
     <section id="problem" className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
         <h2 className="text-4xl font-bold text-center mb-16">
-          Les Défis du Sport à l'Ère Numérique
+          Les défis du Sport à l'Ère Numérique
         </h2>
         
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -14,7 +14,7 @@ export default function Problem() {
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
                 <Users className="text-primary" />
-                Le Problème
+                Le problème
               </h3>
               <p className="text-gray-600">
                 Aujourd'hui, les clubs sportifs et les fédérations peinent à engager efficacement leurs communautés dans un environnement de plus en plus digitalisé.
@@ -24,7 +24,7 @@ export default function Problem() {
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
                 <TrendingUp className="text-secondary" />
-                L'Opportunité
+                L'opportunité
               </h3>
               <p className="text-gray-600">
                 Avec PaiecashPlay, nous transformons ces défis en opportunités grâce à des solutions innovantes basées sur la data et l'interaction en temps réel.

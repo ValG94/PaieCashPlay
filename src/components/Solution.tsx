@@ -34,7 +34,7 @@ export default function Solution() {
     <section id="solution" className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <h2 className="text-4xl font-bold text-center mb-6">
-          Nos Solutions Technologiques
+          Nos solutions technologiques
         </h2>
         <p className="text-center text-gray-600 mb-16 max-w-3xl mx-auto">
           Une suite complète d'outils innovants pour transformer l'expérience des fans et optimiser la gestion des clubs
