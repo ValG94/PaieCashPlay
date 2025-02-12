@@ -54,7 +54,7 @@ export default function Testimonials() {
         </div>
 
         <div className="text-center">
-          <h3 className="text-xl font-semibold mb-8">Nos Partenaires</h3>
+          <h3 className="text-xl font-semibold mb-8">Nos partenaires</h3>
           <div className="flex justify-center items-center gap-12 grayscale opacity-60">
             {partners.map((partner, index) => (
               <img 
