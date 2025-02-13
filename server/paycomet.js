@@ -23,63 +23,62 @@ router.post('/create-payment-session', async (req, res) => {
   try {
     const { amount } = req.body;
     
-    if (!amount) {
-      return res.status(400).json({ error: 'Le montant est requis' });
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Le montant doit être supérieur à 0' });
     }
     
-    const orderReference = "test-order-" + crypto.randomBytes(4).toString('hex');
+    const orderReference = "order-" + crypto.randomBytes(8).toString('hex');
     
-    // Payload pour test avec carte directe
+    // Payload pour l'API v1/form de PayCOMET
     const payload = {
-      terminal: parseInt(process.env.VITE_PAYCOMET_TERMINAL),
-      order: orderReference,
-      amount: Math.round(amount * 100), // Conversion en centimes
-      currency: 'EUR',
-      methodId: 1,
-      merchantCode: process.env.VITE_PAYCOMET_MERCHANT_CODE,
-      pan: "4111111111111111",
-      expiryYear: "25",
-      expiryMonth: "12",
-      cvv: "123",
-      urlOk: `${process.env.FRONTEND_URL}/success`,
-      urlKo: `${process.env.FRONTEND_URL}/error`,
-      secure: 1
-    };
-
-    console.log('Tentative de paiement direct PayCOMET:', {
-      url: `${API_BASE_URL}${ENDPOINTS.CREATE_ORDER}`,
-      headers: req.paycometHeaders,
-      payload: {
-        ...payload,
-        pan: '************1111', // Masquer le numéro de carte dans les logs
-        cvv: '***'
+      operationType: 1,
+      language: "fr",
+      payment: {
+        methodId: 1,
+        terminal: parseInt(process.env.VITE_PAYCOMET_TERMINAL),
+        order: orderReference,
+        amount: Math.round(amount * 100).toString(), // Conversion en centimes et en string
+        currency: "EUR",
+        originalIp: req.ip || "127.0.0.1",
+        secure: 1,
+        userInteraction: 1,
+        productDescription: "Investissement PaieCash",
+        merchantCode: process.env.VITE_PAYCOMET_MERCHANT_CODE,
+        urlOk: `${process.env.FRONTEND_URL}/success`,
+        urlKo: `${process.env.FRONTEND_URL}/error`
       }
-    });
+    };
 
     const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CREATE_ORDER}`, {
       method: 'POST',
       headers: {
         ...req.paycometHeaders,
+        'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
       body: JSON.stringify(payload),
     });
 
     const data = await response.json();
-    console.log('Réponse PayCOMET:', data);
 
-    if (!response.ok) {
-      return res.status(response.status).json(data);
+    if (!response.ok || data.errorCode) {
+      throw new Error(data.errorDescription || 'Erreur lors de la création du formulaire de paiement');
     }
-    
+
+    if (!data.challengeUrl) {
+      throw new Error('URL de paiement non reçue');
+    }
+
     res.json({ 
       success: true,
-      paymentId: orderReference,
-      ...data
+      challengeUrl: data.challengeUrl,
+      paymentId: orderReference
     });
   } catch (error) {
-    console.error('Erreur PayCOMET:', error);
-    res.status(500).json({ error: error.message || 'Erreur interne du serveur' });
+    res.status(500).json({ 
+      success: false,
+      error: error instanceof Error ? error.message : 'Erreur interne du serveur' 
+    });
   }
 });
 
@@ -90,33 +89,37 @@ router.get('/verify-payment/:paymentId', async (req, res) => {
   try {
     const { paymentId } = req.params;
 
-    console.log('Vérification paiement:', {
-      url: `${API_BASE_URL}${ENDPOINTS.CHECK_STATUS}${paymentId}`,
-    });
+    if (!paymentId) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'ID de paiement requis' 
+      });
+    }
 
     const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CHECK_STATUS}${paymentId}`, {
+      method: 'GET',
       headers: {
         ...req.paycometHeaders,
         'Accept': 'application/json'
       },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Erreur vérification:', errorData);
-      return res.status(response.status).json(errorData);
-    }
-
     const data = await response.json();
-    console.log('Statut paiement:', data);
+
+    if (!response.ok || data.errorCode) {
+      throw new Error(data.errorDescription || 'Erreur lors de la vérification du paiement');
+    }
     
     res.json({
-      status: data.status,
+      success: true,
+      status: data.status || 'pending',
       paymentId: data.order,
     });
   } catch (error) {
-    console.error('Erreur de vérification:', error);
-    res.status(500).json({ error: error.message || 'Erreur interne du serveur' });
+    res.status(500).json({ 
+      success: false,
+      error: error instanceof Error ? error.message : 'Erreur interne du serveur' 
+    });
   }
 });
 
@@ -126,7 +129,6 @@ router.get('/verify-payment/:paymentId', async (req, res) => {
 router.post('/webhook', express.json(), async (req, res) => {
   try {
     const notification = req.body;
-    console.log('Notification PayCOMET reçue:', notification);
     
     // Vérification de la signature
     const signature = req.headers['paycomet-signature'];
@@ -136,17 +138,18 @@ router.post('/webhook', express.json(), async (req, res) => {
       .digest('hex');
 
     if (signature !== calculatedSignature) {
-      console.error('Signature invalide');
-      return res.status(400).json({ error: 'Signature invalide' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Signature invalide' 
+      });
     }
 
-    // Traitement de la notification
-    console.log('Notification validée:', notification);
-
-    res.json({ received: true });
+    res.json({ success: true, received: true });
   } catch (error) {
-    console.error('Erreur webhook:', error);
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ 
+      success: false,
+      error: error instanceof Error ? error.message : 'Erreur interne du serveur' 
+    });
   }
 });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Shield, CreditCard } from 'lucide-react';
 import { formatCurrency } from '../../utils/currency';
 import { PayCOMETService } from '../../services/paycomet';
@@ -12,33 +12,19 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const initPayCOMET = async () => {
-      try {
-        await PayCOMETService.initialize();
-      } catch (error) {
-        console.error('Erreur d\'initialisation PayCOMET:', error);
-        setError('Erreur lors de l\'initialisation du système de paiement');
-      }
-    };
-
-    initPayCOMET();
-  }, []);
-
   const handlePayment = async () => {
     try {
       setIsProcessing(true);
       setError(null);
 
-      const result = await PayCOMETService.createPaymentSession(amount);
+      // Initialiser PayCOMET
+      PayCOMETService.initialize();
 
-      if (!result.success) {
-        throw new Error(result.error || 'Erreur lors du traitement du paiement');
-      }
+      // Créer la session de paiement
+      await PayCOMETService.createPaymentSession(amount);
 
-      // Le paiement est géré par l'iframe PayCOMET
+      // La redirection est gérée dans le service PayCOMET
     } catch (error) {
-      console.error('Erreur de paiement:', error);
       setError(error instanceof Error ? error.message : 'Une erreur est survenue lors du paiement');
     } finally {
       setIsProcessing(false);
