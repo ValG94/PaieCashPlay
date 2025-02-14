@@ -17,6 +17,9 @@ app.use(express.json());
 
 // Routes PayCOMET
 app.use('/api/paycomet', paycomet);
+console.log('==> paycometRoutes is being registered');
+app.use('/api/paycomet', paycomet);
+
 
 // Servir les fichiers statiques de l'application React
 app.use(express.static(join(__dirname, '../dist')));

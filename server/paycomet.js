@@ -59,6 +59,20 @@ router.post('/create-payment-session', async (req, res) => {
       body: JSON.stringify(payload),
     });
 
+    const payment = await fetch('/url', {
+      method: 'POST',
+      headers: {
+        'PAYCOMET-API-TOKEN': `${process.env.PAYCOMET-API-TOKEN}`
+      },
+      body: JSON.stringify({ data: 'montant du formulaire à récupérer + relier le bouton avec appel des paiements' }),
+      })
+        .then(response => response.json())
+        .then(data => {
+      if (data.challengeUrl) {
+          window.location.href = data.challengeUrl; // Redirection
+      }
+  })
+  .catch(error => console.error('Erreur:', error));
     const data = await response.json();
 
     if (!response.ok || data.errorCode) {
@@ -71,7 +85,7 @@ router.post('/create-payment-session', async (req, res) => {
 
     res.json({ 
       success: true,
-      challengeUrl: data.challengeUrl,
+      challengeUrl: res.data.challengeUrl,
       paymentId: orderReference
     });
   } catch (error) {
@@ -127,6 +141,7 @@ router.get('/verify-payment/:paymentId', async (req, res) => {
  * Webhook pour les notifications PayCOMET
  */
 router.post('/webhook', express.json(), async (req, res) => {
+  res.setHeader('PAYCOMET-API-TOKEN', process.env.PAYCOMET-API-TOKEN);
   try {
     const notification = req.body;
     

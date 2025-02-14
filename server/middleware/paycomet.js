@@ -2,6 +2,10 @@ import { paycometConfig } from '../config/paycomet.js';
 
 export const validatePaycometRequest = (req, res, next) => {
   const { PAYCOMET_API_KEY, VITE_PAYCOMET_MERCHANT_CODE, VITE_PAYCOMET_TERMINAL } = process.env;
+  console.log('PAYCOMET_API_KEY:', process.env.PAYCOMET_API_KEY);
+  console.log('VITE_PAYCOMET_MERCHANT_CODE:', process.env.VITE_PAYCOMET_MERCHANT_CODE);
+  console.log('VITE_PAYCOMET_TERMINAL:', process.env.VITE_PAYCOMET_TERMINAL);
+
   
   if (!PAYCOMET_API_KEY || !VITE_PAYCOMET_MERCHANT_CODE || !VITE_PAYCOMET_TERMINAL) {
     console.error('Configuration PayCOMET manquante');
