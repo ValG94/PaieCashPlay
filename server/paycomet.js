@@ -8,10 +8,12 @@ import { validatePaycometRequest } from './middleware/paycomet.js';
 dotenv.config();
 
 const router = express.Router();
-const { API_URL, SANDBOX_API_URL, ENDPOINTS } = paycometConfig;
+const { API_URL, ENDPOINTS } = paycometConfig;
 
-// Utiliser l'URL de sandbox en mode test
-const API_BASE_URL = process.env.NODE_ENV === 'test' ? SANDBOX_API_URL : API_URL;
+// Log de l'environnement utilisé
+console.log('Environment PayCOMET: TEST (Terminal de test)');
+console.log('API URL:', API_URL);
+console.log('==> la route payComet est correcte');
 
 // Middleware de validation pour toutes les routes PayCOMET
 router.use(validatePaycometRequest);
@@ -23,75 +25,79 @@ router.post('/create-payment-session', async (req, res) => {
   try {
     const { amount } = req.body;
     
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ error: 'Le montant doit être supérieur à 0' });
+    // Validation du montant
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Le montant est requis et doit être un nombre positif' 
+      });
     }
     
     const orderReference = "order-" + crypto.randomBytes(8).toString('hex');
     
-    // Payload pour l'API v1/form de PayCOMET
+    // Construction du payload selon la documentation PayCOMET
     const payload = {
-      operationType: 1,
-      language: "fr",
       payment: {
-        methodId: 1,
         terminal: parseInt(process.env.VITE_PAYCOMET_TERMINAL),
         order: orderReference,
-        amount: Math.round(amount * 100).toString(), // Conversion en centimes et en string
-        currency: "EUR",
-        originalIp: req.ip || "127.0.0.1",
-        secure: 1,
-        userInteraction: 1,
-        productDescription: "Investissement PaieCash",
+        amount: Math.round(amount * 100), // Conversion en centimes
+        currency: 'EUR',
+        methodId: 1,
         merchantCode: process.env.VITE_PAYCOMET_MERCHANT_CODE,
+        originalIp: req.ip || '127.0.0.1',
+        secure: 1,
         urlOk: `${process.env.FRONTEND_URL}/success`,
-        urlKo: `${process.env.FRONTEND_URL}/error`
-      }
+        urlKo: `${process.env.FRONTEND_URL}/error`,
+        userInteraction: 1
+      },
+      operationType: 1,
+      language: 'fr'
     };
 
-    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CREATE_ORDER}`, {
+    console.log('Envoi de la requête PayCOMET:', {
+      url: `${API_URL}${ENDPOINTS.CREATE_ORDER}`,
+      headers: {
+        ...req.paycometHeaders,
+        'merchantCode': '****' // Masquer le code marchand dans les logs
+      },
+      payload
+    });
+
+    const response = await fetch(`${API_URL}${ENDPOINTS.CREATE_ORDER}`, {
       method: 'POST',
       headers: {
         ...req.paycometHeaders,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload),
     });
 
-    const payment = await fetch('/url', {
-      method: 'POST',
-      headers: {
-        'PAYCOMET-API-TOKEN': `${process.env.PAYCOMET-API-TOKEN}`
-      },
-      body: JSON.stringify({ data: 'montant du formulaire à récupérer + relier le bouton avec appel des paiements' }),
-      })
-        .then(response => response.json())
-        .then(data => {
-      if (data.challengeUrl) {
-          window.location.href = data.challengeUrl; // Redirection
-      }
-  })
-  .catch(error => console.error('Erreur:', error));
     const data = await response.json();
 
-    if (!response.ok || data.errorCode) {
-      throw new Error(data.errorDescription || 'Erreur lors de la création du formulaire de paiement');
+    if (!response.ok) {
+      console.error('Erreur PayCOMET:', data);
+      return res.status(response.status).json({
+        success: false,
+        error: data.errorMessage || 'Erreur lors de la création du paiement'
+      });
     }
 
-    if (!data.challengeUrl) {
-      throw new Error('URL de paiement non reçue');
-    }
-
+    console.log('Réponse PayCOMET:', {
+      ...data,
+      order: orderReference
+    });
+    
     res.json({ 
       success: true,
-      challengeUrl: res.data.challengeUrl,
-      paymentId: orderReference
+      paymentId: orderReference,
+      challengeUrl: data.challengeUrl,
+      isTest: true
     });
   } catch (error) {
+    console.error('Erreur PayCOMET détaillée:', error);
     res.status(500).json({ 
-      success: false,
-      error: error instanceof Error ? error.message : 'Erreur interne du serveur' 
+      success: false, 
+      error: 'Erreur lors de la création du paiement' 
     });
   }
 });
@@ -104,66 +110,44 @@ router.get('/verify-payment/:paymentId', async (req, res) => {
     const { paymentId } = req.params;
 
     if (!paymentId) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: 'ID de paiement requis' 
+        error: 'ID de paiement requis'
       });
     }
 
-    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CHECK_STATUS}${paymentId}`, {
+    console.log('Vérification paiement:', {
+      url: `${API_URL}${ENDPOINTS.CHECK_STATUS}${paymentId}`,
+    });
+
+    const response = await fetch(`${API_URL}${ENDPOINTS.CHECK_STATUS}${paymentId}`, {
       method: 'GET',
-      headers: {
-        ...req.paycometHeaders,
-        'Accept': 'application/json'
-      },
+      headers: req.paycometHeaders
     });
 
     const data = await response.json();
 
-    if (!response.ok || data.errorCode) {
-      throw new Error(data.errorDescription || 'Erreur lors de la vérification du paiement');
+    if (!response.ok) {
+      console.error('Erreur vérification:', data);
+      return res.status(response.status).json({
+        success: false,
+        error: data.errorMessage || 'Erreur lors de la vérification'
+      });
     }
+
+    console.log('Statut paiement:', data);
     
     res.json({
       success: true,
       status: data.status || 'pending',
       paymentId: data.order,
+      isTest: true
     });
   } catch (error) {
+    console.error('Erreur de vérification:', error);
     res.status(500).json({ 
-      success: false,
-      error: error instanceof Error ? error.message : 'Erreur interne du serveur' 
-    });
-  }
-});
-
-/**
- * Webhook pour les notifications PayCOMET
- */
-router.post('/webhook', express.json(), async (req, res) => {
-  res.setHeader('PAYCOMET-API-TOKEN', process.env.PAYCOMET-API-TOKEN);
-  try {
-    const notification = req.body;
-    
-    // Vérification de la signature
-    const signature = req.headers['paycomet-signature'];
-    const calculatedSignature = crypto
-      .createHmac('sha256', process.env.PAYCOMET_API_KEY)
-      .update(JSON.stringify(notification))
-      .digest('hex');
-
-    if (signature !== calculatedSignature) {
-      return res.status(400).json({ 
-        success: false,
-        error: 'Signature invalide' 
-      });
-    }
-
-    res.json({ success: true, received: true });
-  } catch (error) {
-    res.status(400).json({ 
-      success: false,
-      error: error instanceof Error ? error.message : 'Erreur interne du serveur' 
+      success: false, 
+      error: 'Erreur lors de la vérification du paiement' 
     });
   }
 });

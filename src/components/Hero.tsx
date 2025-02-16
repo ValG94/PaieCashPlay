@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Download } from 'lucide-react';
+import heroImage from "../assets/hero-image.jpg";
 
 export default function Hero() {
   const scrollToNextSection = () => {
@@ -18,7 +19,7 @@ export default function Hero() {
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{
-          backgroundImage: "url('/src/assets/hero-image.jpg')",
+          backgroundImage:  `url(${heroImage})`,
         }}
       ></div>
 

@@ -17,7 +17,7 @@ app.use(express.json());
 
 // Routes PayCOMET
 app.use('/api/paycomet', paycomet);
-console.log('==> paycometRoutes is being registered');
+console.log('==> la route payComet est correcte');
 app.use('/api/paycomet', paycomet);
 
 

@@ -52,12 +52,12 @@ export class PayCOMETService {
         throw new Error(data.error || `Erreur ${response.status}: ${response.statusText}`);
       }
 
-      if (!data.challengeUrl) {
-        throw new Error('URL de paiement non reçue');
+      if (!data.formUrl) {
+        throw new Error('URL du formulaire de paiement non reçue');
       }
 
-      // Redirection vers l'URL de paiement PayCOMET
-      window.location.href = data.challengeUrl;
+      // Redirection vers le formulaire de paiement PayCOMET
+      window.location.href = data.formUrl;
 
       return { 
         success: true,
