@@ -13,7 +13,7 @@ interface FormData {
 const initialFormData: FormData = {
   name: '',
   email: '',
-  investment: 'Moins de 500 €',
+  investment: 'de 50 € à 500 €',
   phone: '',
   message: '',
 };
@@ -128,7 +128,7 @@ export default function Contact() {
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option>Moins de 500€</option>
+                <option>50 € à 500 €</option>
                 <option>1 000€ - 2 000€</option>
                 <option>10 000€ - 50 000€</option>
                 <option>Plus de 50 000€</option>
