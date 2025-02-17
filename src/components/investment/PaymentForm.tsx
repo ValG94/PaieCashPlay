@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, CreditCard } from 'lucide-react';
 import { formatCurrency } from '../../utils/currency';
-import { PayCOMETService } from '../../services/paycomet';
 import { paymentLogos } from '../../assets/payment-logos';
 
 interface PaymentFormProps {
@@ -12,19 +11,52 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const generateOrderId = () => {
+    return 'order-' + Math.random().toString(36).substring(2, 15);
+  };
+
   const handlePayment = async () => {
     try {
       setIsProcessing(true);
       setError(null);
 
-      // Initialiser PayCOMET
-      PayCOMETService.initialize();
+      const paymentData = {
+        operationType: 1,
+        language: "fr",
+        payment: {
+          methodId: 1,
+          terminal: 77351,
+          order: generateOrderId(),
+          amount: Math.round(amount * 100).toString(), // Conversion en centimes
+          currency: "EUR",
+          originalIp: "127.0.0.1",
+          secure: 1,
+          userInteraction: 1,
+          productDescription: "Investissement PaieCash",
+          merchantCode: "48sfshfw",
+          urlOk: "https://paiecash.fr/success",
+          urlKO: "https://paiecash.fr/error"
+        }
+      };
 
-      // Créer la session de paiement
-      await PayCOMETService.createPaymentSession(amount);
+      const response = await fetch('https://rest.paycomet.com/v1/form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'PAYCOMET-API-TOKEN': '7e776b70e7650d1f0a94080bb25bbf7f345b11e8'
+        },
+        body: JSON.stringify(paymentData)
+      });
 
-      // La redirection est gérée dans le service PayCOMET
+      const data = await response.json();
+
+      if (data.challengeUrl) {
+        window.location.href = data.challengeUrl;
+      } else {
+        throw new Error('URL de paiement non reçue');
+      }
     } catch (error) {
+      console.error('Erreur de paiement:', error);
       setError(error instanceof Error ? error.message : 'Une erreur est survenue lors du paiement');
     } finally {
       setIsProcessing(false);
