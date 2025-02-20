@@ -2,6 +2,7 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
+/*
 export const createPaymentSession = async (amount: number) => {
   try {
     const response = await fetch('http://localhost:3001/api/create-payment-session', {
@@ -35,3 +36,4 @@ export const createPaymentSession = async (amount: number) => {
     throw error;
   }
 };
+*/

@@ -15,7 +15,7 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
     return 'order-' + Math.random().toString(36).substring(2, 15);
   };
 
-  const handlePayment = async () => {
+  const handlePaymentPayCommet = async () => {
     try {
       setIsProcessing(true);
       setError(null);
@@ -42,10 +42,12 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
       const response = await fetch('https://rest.paycomet.com/v1/form', {
         method: 'POST',
         headers: {
+          'Accept' : 'application/json',
           'Content-Type': 'application/json',
           'PAYCOMET-API-TOKEN': '7e776b70e7650d1f0a94080bb25bbf7f345b11e8'
         },
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify(paymentData) ,
+        redirect : "follow"
       });
 
       const data = await response.json();
@@ -88,7 +90,7 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
         </div>
 
         <button
-          onClick={handlePayment}
+          onClick={handlePaymentPayCommet}
           disabled={isProcessing}
           className={`w-full px-8 py-4 bg-primary text-white rounded-full hover:bg-primary/90 transition-all flex items-center justify-center gap-2 ${
             isProcessing ? 'opacity-50 cursor-not-allowed' : ''

@@ -21,35 +21,35 @@ export default function TestPayment() {
     }, ...prev]);
   };
 
-  const handlePaymentTest = async () => {
-    setIsLoading(true);
-    try {
-      addTestResult('info', true, `Démarrage du test de paiement pour ${testAmount}€`);
+  // const handlePaymentTest = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     addTestResult('info', true, `Démarrage du test de paiement pour ${testAmount}€`);
       
-      const result = await PayCOMETService.createPaymentSession(testAmount);
+  //     //const result = await PayCOMETService.createPaymentSession(testAmount);
       
-      if (result.success) {
-        addTestResult('success', true, `Session de paiement créée avec succès. ID: ${result.paymentId}`);
+  //     if (result.success) {
+  //       addTestResult('success', true, `Session de paiement créée avec succès. ID: ${result.paymentId}`);
         
-        if (result.paymentId) {
-          const verificationResult = await PayCOMETService.verifyPaymentStatus(result.paymentId);
-          addTestResult(
-            'verify',
-            verificationResult.success,
-            verificationResult.success
-              ? `Paiement vérifié avec succès. Statut: ${verificationResult.status}`
-              : `Erreur de vérification: ${verificationResult.error}`
-          );
-        }
-      } else {
-        addTestResult('error', false, `Erreur: ${result.error}`);
-      }
-    } catch (error) {
-      addTestResult('error', false, `Exception: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //       if (result.paymentId) {
+  //         const verificationResult = await PayCOMETService.verifyPaymentStatus(result.paymentId);
+  //         addTestResult(
+  //           'verify',
+  //           verificationResult.success,
+  //           verificationResult.success
+  //             ? `Paiement vérifié avec succès. Statut: ${verificationResult.status}`
+  //             : `Erreur de vérification: ${verificationResult.error}`
+  //         );
+  //       }
+  //     } else {
+  //       addTestResult('error', false, `Erreur: ${result.error}`);
+  //     }
+  //   } catch (error) {
+  //     addTestResult('error', false, `Exception: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50 py-20">
@@ -95,7 +95,7 @@ export default function TestPayment() {
               
               <div className="flex items-end">
                 <button
-                  onClick={handlePaymentTest}
+                
                   disabled={isLoading}
                   className={`px-6 py-2 bg-primary text-white rounded-lg flex items-center gap-2
                     ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90'}`}

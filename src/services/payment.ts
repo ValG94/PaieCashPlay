@@ -16,44 +16,44 @@ export class PaymentService {
    * @param amount - Montant en euros
    * @returns PaymentResponse
    */
-  static async createPaymentSession(amount: number): Promise<PaymentResponse> {
-    try {
-      const response = await fetch('http://localhost:3001/api/create-payment-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amount }),
-      });
+  // static async createPaymentSession(amount: number): Promise<PaymentResponse> {
+  //   try {
+  //     const response = await fetch('http://localhost:3001/api/create-payment-session', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ amount }),
+  //     });
 
-      if (!response.ok) {
-        throw new Error('Erreur lors de la création de la session de paiement');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Erreur lors de la création de la session de paiement');
+  //     }
 
-      const session = await response.json();
-      const stripe = await stripePromise;
+  //     const session = await response.json();
+  //     const stripe = await stripePromise;
 
-      if (!stripe) {
-        throw new Error('Stripe n\'a pas pu être initialisé');
-      }
+  //     if (!stripe) {
+  //       throw new Error('Stripe n\'a pas pu être initialisé');
+  //     }
 
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: session.id,
-      });
+  //     const { error } = await stripe.redirectToCheckout({
+  //       sessionId: session.id,
+  //     });
 
-      if (error) {
-        throw error;
-      }
+  //     if (error) {
+  //       throw error;
+  //     }
 
-      return { success: true };
-    } catch (error) {
-      console.error('Erreur de paiement:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Une erreur est survenue',
-      };
-    }
-  }
+  //     return { success: true };
+  //   } catch (error) {
+  //     console.error('Erreur de paiement:', error);
+  //     return {
+  //       success: false,
+  //       error: error instanceof Error ? error.message : 'Une erreur est survenue',
+  //     };
+  //   }
+  // }
 
   /**
    * Vérifie le statut d'un paiement
