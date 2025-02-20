@@ -34,8 +34,8 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
           userInteraction: 1,
           productDescription: "Investissement PaieCash",
           merchantCode: "48sfshfw",
-          urlOk: "https://paiecash.fr/success",
-          urlKO: "https://paiecash.fr/error"
+          urlOk: "https://rest.paycomet.com/v1/success",
+          urlKO: "https://rest.paycomet.com/v1/error"
         }
       };
 
