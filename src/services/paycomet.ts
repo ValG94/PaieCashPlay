@@ -31,6 +31,7 @@ export class PayCOMETService {
   /**
    * Crée une session de paiement
    */
+  /*
   static async createPaymentSession(amount: number): Promise<PaymentResponse> {
     try {
       if (!amount || amount <= 0) {
@@ -66,7 +67,7 @@ export class PayCOMETService {
     } catch (error) {
       throw new Error('Erreur de paiement: ' + (error instanceof Error ? error.message : 'Erreur inconnue'));
     }
-  }
+  } */
 
   /**
    * Vérifie le statut d'un paiement
