@@ -15,7 +15,29 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
     return 'order-' + Math.random().toString(36).substring(2, 15);
   };
 
+  // const userResponse = await fetch('https://rest.paycomet.com/v1/users', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Accept': 'application/json',
+  //     'Content-Type': 'application/json',
+  //     'PAYCOMET-API-TOKEN': 'VOTRE_API_TOKEN'
+  //   },
+  //   body: JSON.stringify({
+  //     user: {
+  //       name: "Jean Dupont",
+  //       email: "jean.dupont@example.com",
+  //       phone: "0601020304"
+  //     }
+  //   }),
+  // });
+  
+  // const userData = await userResponse.json();
+  // console.log(userData); // Contient idUser et tokenUser
+  
+
   const handlePaymentPayCommet = async () => {
+    console.log("Valeur de amount:", amount);
+    console.log("Montant envoyé à l'API:", Math.round(amount * 100));
     try {
       setIsProcessing(true);
       setError(null);
@@ -27,7 +49,7 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
           methodId: 1,
           terminal: 77351,
           order: generateOrderId(),
-          amount: Math.round(amount * 100).toString(), // Conversion en centimes
+          amount: Math.round(amount * 100),
           currency: "EUR",
           originalIp: "127.0.0.1",
           secure: 1,
@@ -120,3 +142,4 @@ export default function PaymentForm({ amount }: PaymentFormProps) {
     </div>
   );
 }
+
